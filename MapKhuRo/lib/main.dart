@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light()
-          .copyWith(primaryColor: Colors.amber, accentColor: Colors.black),
+          .copyWith(primaryColor: Colors.redAccent, accentColor: Colors.black),
       title: "MapKhuRo",
       home: LoginPage(),
     );

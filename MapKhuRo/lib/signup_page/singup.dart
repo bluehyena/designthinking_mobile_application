@@ -1,0 +1,269 @@
+import 'package:MapKhuRo/login_page/loginpage.dart';
+import 'package:flutter/material.dart';
+import 'package:MapKhuRo/home_page/homepage.dart';
+
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
+class UserStorage {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/user.txt');
+  }
+
+  Future<File> writeUser(String userid) async {
+    final file = await _localFile;
+
+    // 파일 쓰기
+    return file.writeAsString('$userid');
+  }
+
+  Future<String> readUser() async {
+    try {
+      final file = await _localFile;
+
+      // 파일 읽기.
+      String contents = await file.readAsString();
+
+      return contents;
+    } catch (e) {
+      // 에러가 발생할 경우 e를 반환.
+      return e;
+    }
+  }
+}
+
+class SignUpPage extends StatefulWidget {
+  @override
+  _SignUpPageState createState() => _SignUpPageState();
+}
+
+class _SignUpPageState extends State<SignUpPage> {
+  TextEditingController name = TextEditingController();
+  TextEditingController studentNumber = TextEditingController();
+  TextEditingController emailid = TextEditingController();
+  TextEditingController password = TextEditingController();
+
+  String _name;
+  String _studentNumber;
+  String _emailid;
+  String _password;
+
+  Widget buildEmail() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('KHU-Mail'),
+        SizedBox(height: 10.0),
+        Container(
+          height: 60.0,
+          alignment: Alignment.centerLeft,
+          decoration: BoxDecoration(
+              color: Colors.red[100],
+              borderRadius: BorderRadius.circular(100.0)),
+          child: TextField(
+            controller: emailid,
+            decoration: InputDecoration(
+              prefixIcon: Icon(
+                Icons.keyboard,
+                color: Colors.white,
+              ),
+              hintText: "KHU-Mail 주소 입력",
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildPhone() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('전화번호'),
+        SizedBox(height: 10.0),
+        Container(
+          height: 60.0,
+          alignment: Alignment.centerLeft,
+          decoration: BoxDecoration(
+              color: Colors.red[100],
+              borderRadius: BorderRadius.circular(100.0)),
+          child: TextField(
+            controller: emailid,
+            decoration: InputDecoration(
+              prefixIcon: Icon(
+                Icons.phone,
+                color: Colors.white,
+              ),
+              hintText: "전화번호 입력 (- 제외)",
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildName() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('이름'),
+        SizedBox(height: 10.0),
+        Container(
+          height: 60.0,
+          alignment: Alignment.centerLeft,
+          decoration: BoxDecoration(
+              color: Colors.red[100],
+              borderRadius: BorderRadius.circular(100.0)),
+          child: TextField(
+            controller: name,
+            decoration: InputDecoration(
+              prefixIcon: Icon(
+                Icons.person,
+                color: Colors.white,
+              ),
+              hintText: "이름을 입력하세요.",
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildStudentNumber() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('학번'),
+        SizedBox(height: 10.0),
+        Container(
+          height: 60.0,
+          alignment: Alignment.centerLeft,
+          decoration: BoxDecoration(
+              color: Colors.red[100],
+              borderRadius: BorderRadius.circular(100.0)),
+          child: TextField(
+            controller: studentNumber,
+            decoration: InputDecoration(
+              prefixIcon: Icon(
+                Icons.tag,
+                color: Colors.white,
+              ),
+              hintText: "학번을 입력하세요. (ID로 사용)",
+              border: InputBorder.none,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildPassword() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('비밀번호'),
+        SizedBox(height: 10.0),
+        Container(
+          height: 60.0,
+          alignment: Alignment.centerLeft,
+          decoration: BoxDecoration(
+              color: Colors.red[100],
+              borderRadius: BorderRadius.circular(100.0)),
+          child: TextField(
+            controller: password,
+            decoration: InputDecoration(
+              prefixIcon: Icon(
+                Icons.lock,
+                color: Colors.white,
+              ),
+              hintText: "비밀번호를 입력하세요.",
+              border: InputBorder.none,
+            ),
+            obscureText: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildSignInBtn() {
+    return Container(
+      width: 250.0,
+      child: RaisedButton(
+        onPressed: () {
+          _name = name.text;
+          _studentNumber = studentNumber.text;
+          _emailid = emailid.text;
+          _password = password.text;
+          if (true) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => LoginPage()));
+          }
+          // Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (BuildContext context) => LoginPage()));
+        },
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30.0),
+        ),
+        color: Colors.red[300],
+        child: Text(
+          '가입완료',
+          style: TextStyle(
+              color: Colors.white,
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'OpenSans'),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('회원가입'),
+          backgroundColor: Colors.redAccent[200],
+          centerTitle: true,
+          leading: IconButton(icon: Icon(Icons.menu), onPressed: () {}),
+          actions: <Widget>[
+            IconButton(icon: Icon(Icons.search), onPressed: () {})
+          ],
+        ),
+        body: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(
+            horizontal: 40.0,
+          ),
+          child: Column(
+            children: [
+              SizedBox(height: 20.0),
+              buildName(),
+              SizedBox(height: 7.0),
+              buildStudentNumber(),
+              SizedBox(height: 7.0),
+              buildPhone(),
+              SizedBox(height: 7.0),
+              buildEmail(),
+              SizedBox(height: 7.0),
+              buildPassword(),
+              SizedBox(height: 25.0),
+              buildSignInBtn(),
+            ],
+          ),
+        ));
+  }
+}

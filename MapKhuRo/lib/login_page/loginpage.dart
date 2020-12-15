@@ -1,5 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:MapKhuRo/home_page/homepage.dart';
+import 'package:MapKhuRo/signup_page/singup.dart';
+
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
+class UserStorage {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    return File('$path/user.txt');
+  }
+
+  Future<File> writeUser(String email) async {
+    final file = await _localFile;
+
+    return file.writeAsString('$email');
+  }
+
+  Future<String> readUser() async {
+    try {
+      final file = await _localFile;
+
+      String contents = await file.readAsString();
+      // Error가 없을 경우 contents를 반환.
+      return contents;
+    } catch (e) {
+      // 에러가 발생할 경우 e을 반환.
+      return e.toString();
+    }
+  }
+}
 
 class LoginPage extends StatefulWidget {
   @override
@@ -7,9 +43,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool isRemember = false;
-
-  TextEditingController emailid = TextEditingController();
+  TextEditingController studentNumber = TextEditingController();
   TextEditingController password = TextEditingController();
 
   Widget buildMainLogo() {
@@ -20,11 +54,11 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget buildEmail() {
+  Widget buildStudentId() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('KHU-Mail'),
+        Text('학번입력'),
         SizedBox(height: 10.0),
         Container(
           height: 60.0,
@@ -33,13 +67,13 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
-            controller: emailid,
+            controller: studentNumber,
             decoration: InputDecoration(
               prefixIcon: Icon(
-                Icons.keyboard,
+                Icons.person,
                 color: Colors.white,
               ),
-              hintText: "KHU-Mail을 입력하세요",
+              hintText: "학번을 입력하세요",
               border: InputBorder.none,
             ),
           ),
@@ -79,17 +113,12 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget buildLoginBtn() {
     return Container(
-      width: double.infinity,
+      width: 250.0,
       child: RaisedButton(
         onPressed: () {
-          // txt안에 있을 때 로그인
-          if (emailid.text == 'bluehyena123@khu.ac.kr' &&
-              password.text == '9850') {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => HomePage()));
-          }
+          print("Success");
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) => HomePage()));
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
@@ -107,12 +136,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget buildSignInBtn() {
+  Widget buildSignUpBtn() {
     return Container(
-      width: double.infinity,
+      width: 250.0,
       child: RaisedButton(
         onPressed: () {
-          print('홍제영');
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => SignUpPage()));
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
@@ -151,13 +183,13 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 20.0),
               buildMainLogo(),
               SizedBox(height: 2.0),
-              buildEmail(),
+              buildStudentId(),
               SizedBox(height: 10.0),
               buildPassword(),
               SizedBox(height: 35.0),
               buildLoginBtn(),
               SizedBox(height: 5.0),
-              buildSignInBtn(),
+              buildSignUpBtn(),
             ],
           ),
         ));
