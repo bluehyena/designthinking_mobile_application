@@ -4,8 +4,33 @@ import 'package:MapKhuRo/googlemap_page/googlemaps.dart';
 import 'package:MapKhuRo/personal_page/friendslist.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String _email = '0501kdh7@khu.ac.kr';
+  SharedPreferences _prefEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEmail();
+  }
+
+  void _loadEmail() async {
+    // SharedPreferences의 인스턴스를 필드에 저장
+    _prefEmail = await SharedPreferences.getInstance();
+    setState(() {
+      // SharedPreferences에 각각 residualtable, maxtable로 저장된 값을 읽어 필드에 저장. 없을 경우 ''으로 대입
+      _email = (_prefEmail.getString('_email') ?? '');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +55,8 @@ class HomePage extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (BuildContext context) => MyInfomation()));
+                            builder: (BuildContext context) =>
+                                MyInformation()));
                   },
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),

@@ -7,6 +7,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:MapKhuRo/googlemap_page/googlemaps.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -14,8 +16,47 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _email;
-  String _password;
+  String _email = '';
+  String _password = '';
+  SharedPreferences _prefEmail;
+
+  final _emailId = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEmail();
+  }
+
+  void _loadEmail() async {
+    _prefEmail = await SharedPreferences.getInstance();
+    setState(() {
+      _email = (_prefEmail.getString('_email') ?? '');
+    });
+  }
+
+  Future<String> _getStringFromSharedPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    final startupEmail = prefs.getString('startupEmail');
+    if (startupEmail == null) {
+      return '';
+    }
+    return startupEmail;
+  }
+
+  Future<void> _resetPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('startupEmail', '');
+  }
+
+  Future<void> _incrementEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    String lastStartupEmail = await _getStringFromSharedPref();
+    String currentStartupEmail = ''; //firebase data
+
+    await prefs.setString('startupEmail', currentStartupEmail);
+  }
 
   final emailController = TextEditingController();
 
@@ -26,7 +67,8 @@ class _LoginPageState extends State<LoginPage> {
         email: _email,
         password: _password,
       );
-      print("User : $userCredential");
+      Navigator.push(context,
+          MaterialPageRoute(builder: (BuildContext context) => HomePage()));
     } on FirebaseAuthException catch (e) {
       print('에러 : $e');
     } catch (e) {
@@ -39,8 +81,6 @@ class _LoginPageState extends State<LoginPage> {
     firestore.collection('UserID').doc('current').set({
       'Id': id,
     });
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
   }
 
   Widget buildMainLogo() {
@@ -118,8 +158,8 @@ class _LoginPageState extends State<LoginPage> {
       width: 250.0,
       child: RaisedButton(
         onPressed: () {
-          _login();
           CreateCurrentUser(emailController.text);
+          _login();
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
