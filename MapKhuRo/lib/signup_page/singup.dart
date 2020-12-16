@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:MapKhuRo/home_page/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
@@ -58,11 +58,31 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
+  void CreateUser(String id, String password, String name, String phone,
+      String studentnumber) {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    firestore.collection('UserID').doc(id).set({
+      'Id': id,
+      'Password': password,
+      'Name': name,
+      'Phone': phone,
+      'StudentNumber': studentnumber
+    });
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
+  }
+
   String _email;
   String _password;
   String _phone;
   String _studentNumber;
   String _name;
+
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final phoneController = TextEditingController();
+  final studentNumberController = TextEditingController();
+  final nameController = TextEditingController();
 
   Widget buildEmail() {
     return Column(
@@ -77,6 +97,7 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
+            controller: emailController,
             onSubmitted: (value) {
               _email = value;
             },
@@ -85,7 +106,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 Icons.keyboard,
                 color: Colors.white,
               ),
-              hintText: "KHU-Mail 주소 입력",
+              hintText: "KHU-Mail 주소 입력 (ID로 사용)",
               border: InputBorder.none,
             ),
           ),
@@ -107,6 +128,7 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
+            controller: phoneController,
             onSubmitted: (value) {
               _phone = value;
             },
@@ -137,6 +159,7 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
+            controller: nameController,
             onSubmitted: (value) {
               _name = value;
             },
@@ -167,6 +190,7 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
+            controller: studentNumberController,
             onSubmitted: (value) {
               _studentNumber = value;
             },
@@ -175,7 +199,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 Icons.tag,
                 color: Colors.white,
               ),
-              hintText: "학번을 입력하세요. (ID로 사용)",
+              hintText: "학번을 입력하세요.",
               border: InputBorder.none,
             ),
           ),
@@ -197,6 +221,7 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
+            controller: passwordController,
             onSubmitted: (value) {
               _password = value;
             },
@@ -221,10 +246,12 @@ class _SignUpPageState extends State<SignUpPage> {
       child: RaisedButton(
         onPressed: () {
           _createUser();
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) => LoginPage()));
+          CreateUser(
+              emailController.text,
+              passwordController.text,
+              nameController.text,
+              phoneController.text,
+              studentNumberController.text);
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),

@@ -2,16 +2,32 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
-class GoogleMaps extends StatefulWidget {
+class GoogleMaps extends StatelessWidget {
   @override
-  GoogleMapsState createState() => GoogleMapsState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'MapKHURo',
+      theme: ThemeData(
+        primarySwatch: Colors.red,
+      ),
+      home: MyGoogleTracker(title: 'GoogleMaps'),
+    );
+  }
 }
 
-class GoogleMapsState extends State<GoogleMaps> {
+class MyGoogleTracker extends StatefulWidget {
+  MyGoogleTracker({Key key, this.title}) : super(key: key);
+  final String title;
+
+  @override
+  _MyGoogleTrackerState createState() => _MyGoogleTrackerState();
+}
+
+class _MyGoogleTrackerState extends State<MyGoogleTracker> {
   StreamSubscription _locationSubscription;
   Location _locationTracker = Location();
   Marker marker;
@@ -25,15 +41,16 @@ class GoogleMapsState extends State<GoogleMaps> {
 
   Future<Uint8List> getMarker() async {
     ByteData byteData =
-        await DefaultAssetBundle.of(context).load("assets/charcter.png");
+        await DefaultAssetBundle.of(context).load("assets/character.png");
+    return byteData.buffer.asUint8List();
   }
 
   void updateMarkerAndCircle(LocationData newLocalData, Uint8List imageData) {
-    LatLng latLng = LatLng(newLocalData.latitude, newLocalData.longitude);
+    LatLng latlng = LatLng(newLocalData.latitude, newLocalData.longitude);
     this.setState(() {
       marker = Marker(
           markerId: MarkerId("home"),
-          position: latLng,
+          position: latlng,
           rotation: newLocalData.heading,
           draggable: false,
           zIndex: 2,
@@ -41,11 +58,11 @@ class GoogleMapsState extends State<GoogleMaps> {
           anchor: Offset(0.5, 0.5),
           icon: BitmapDescriptor.fromBytes(imageData));
       circle = Circle(
-          circleId: CircleId("ch4n3"),
+          circleId: CircleId("car"),
           radius: newLocalData.accuracy,
           zIndex: 1,
           strokeColor: Colors.blue,
-          center: latLng,
+          center: latlng,
           fillColor: Colors.blue.withAlpha(70));
     });
   }
@@ -62,7 +79,7 @@ class GoogleMapsState extends State<GoogleMaps> {
       }
 
       _locationSubscription =
-          _locationTracker.onLocationChanged().listen((newLocalData) {
+          _locationTracker.onLocationChanged.listen((newLocalData) {
         if (_controller != null) {
           _controller.animateCamera(CameraUpdate.newCameraPosition(
               new CameraPosition(
@@ -90,32 +107,30 @@ class GoogleMapsState extends State<GoogleMaps> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('구글 맵스'),
-          backgroundColor: Colors.redAccent[200],
-          centerTitle: true,
-          leading: IconButton(icon: Icon(Icons.menu), onPressed: () {}),
-          actions: <Widget>[
-            IconButton(icon: Icon(Icons.search), onPressed: () {})
-          ],
-        ),
-        body: GoogleMap(
-          mapType: MapType.hybrid,
-          initialCameraPosition: initialLocation,
-          markers: Set.of((marker != null) ? [marker] : []),
-          circles: Set.of((circle != null) ? [circle] : []),
-          onMapCreated: (GoogleMapController controller) {
-            _controller = controller;
-          },
-        ),
-        floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.location_searching),
-            onPressed: () {
-              getCurrentLocation();
-            }),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('MapKHURo'),
+        backgroundColor: Colors.redAccent[200],
+        centerTitle: true,
+        leading: IconButton(icon: Icon(Icons.menu), onPressed: () {}),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.search), onPressed: () {})
+        ],
       ),
+      body: GoogleMap(
+        mapType: MapType.hybrid,
+        initialCameraPosition: initialLocation,
+        markers: Set.of((marker != null) ? [marker] : []),
+        circles: Set.of((circle != null) ? [circle] : []),
+        onMapCreated: (GoogleMapController controller) {
+          _controller = controller;
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.location_searching),
+          onPressed: () {
+            getCurrentLocation();
+          }),
     );
   }
 }

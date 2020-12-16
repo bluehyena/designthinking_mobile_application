@@ -6,6 +6,7 @@ import 'package:MapKhuRo/main.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -15,6 +16,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String _email;
   String _password;
+
+  final emailController = TextEditingController();
 
   Future<void> _login() async {
     try {
@@ -29,6 +32,15 @@ class _LoginPageState extends State<LoginPage> {
     } catch (e) {
       print('에러 : $e');
     }
+  }
+
+  void CreateCurrentUser(String id) {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    firestore.collection('UserID').doc('current').set({
+      'Id': id,
+    });
+    Navigator.push(context,
+        MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
   }
 
   Widget buildMainLogo() {
@@ -52,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
+            controller: emailController,
             onSubmitted: (value) {
               _email = value;
             },
@@ -104,7 +117,10 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       width: 250.0,
       child: RaisedButton(
-        onPressed: _login,
+        onPressed: () {
+          _login();
+          CreateCurrentUser(emailController.text);
+        },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
