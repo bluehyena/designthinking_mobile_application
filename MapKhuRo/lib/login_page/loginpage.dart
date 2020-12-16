@@ -1,41 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:MapKhuRo/home_page/homepage.dart';
 import 'package:MapKhuRo/signup_page/singup.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:MapKhuRo/main.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-
-class UserStorage {
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-
-    return directory.path;
-  }
-
-  Future<File> get _localFile async {
-    final path = await _localPath;
-    return File('$path/user.txt');
-  }
-
-  Future<File> writeUser(String email) async {
-    final file = await _localFile;
-
-    return file.writeAsString('$email');
-  }
-
-  Future<String> readUser() async {
-    try {
-      final file = await _localFile;
-
-      String contents = await file.readAsString();
-      // Error가 없을 경우 contents를 반환.
-      return contents;
-    } catch (e) {
-      // 에러가 발생할 경우 e을 반환.
-      return e.toString();
-    }
-  }
-}
 
 class LoginPage extends StatefulWidget {
   @override
@@ -43,8 +13,23 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController studentNumber = TextEditingController();
-  TextEditingController password = TextEditingController();
+  String _email;
+  String _password;
+
+  Future<void> _login() async {
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _email,
+        password: _password,
+      );
+      print("User : $userCredential");
+    } on FirebaseAuthException catch (e) {
+      print('에러 : $e');
+    } catch (e) {
+      print('에러 : $e');
+    }
+  }
 
   Widget buildMainLogo() {
     return CircleAvatar(
@@ -54,11 +39,11 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget buildStudentId() {
+  Widget buildEmailId() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('학번입력'),
+        Text('KHU메일 입력'),
         SizedBox(height: 10.0),
         Container(
           height: 60.0,
@@ -67,13 +52,15 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
-            controller: studentNumber,
+            onSubmitted: (value) {
+              _email = value;
+            },
             decoration: InputDecoration(
               prefixIcon: Icon(
-                Icons.person,
+                Icons.email,
                 color: Colors.white,
               ),
-              hintText: "학번을 입력하세요",
+              hintText: "KHU메일을 입력하세요",
               border: InputBorder.none,
             ),
           ),
@@ -95,7 +82,9 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
-            controller: password,
+            onSubmitted: (value) {
+              _password = value;
+            },
             decoration: InputDecoration(
               prefixIcon: Icon(
                 Icons.lock,
@@ -115,11 +104,7 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       width: 250.0,
       child: RaisedButton(
-        onPressed: () {
-          print("Success");
-          Navigator.push(context,
-              MaterialPageRoute(builder: (BuildContext context) => HomePage()));
-        },
+        onPressed: _login,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
@@ -183,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(height: 20.0),
               buildMainLogo(),
               SizedBox(height: 2.0),
-              buildStudentId(),
+              buildEmailId(),
               SizedBox(height: 10.0),
               buildPassword(),
               SizedBox(height: 35.0),

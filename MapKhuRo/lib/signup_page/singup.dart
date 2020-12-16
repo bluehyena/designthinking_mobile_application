@@ -1,6 +1,8 @@
 import 'package:MapKhuRo/login_page/loginpage.dart';
 import 'package:flutter/material.dart';
 import 'package:MapKhuRo/home_page/homepage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -45,15 +47,22 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  TextEditingController name = TextEditingController();
-  TextEditingController studentNumber = TextEditingController();
-  TextEditingController emailid = TextEditingController();
-  TextEditingController password = TextEditingController();
+  Future<void> _createUser() async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: _email, password: _password);
+    } on FirebaseAuthException catch (e) {
+      print('회원가입 에러 : $e');
+    } catch (e) {
+      print('회원가입 에러 : $e');
+    }
+  }
 
-  String _name;
-  String _studentNumber;
-  String _emailid;
+  String _email;
   String _password;
+  String _phone;
+  String _studentNumber;
+  String _name;
 
   Widget buildEmail() {
     return Column(
@@ -68,7 +77,9 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
-            controller: emailid,
+            onSubmitted: (value) {
+              _email = value;
+            },
             decoration: InputDecoration(
               prefixIcon: Icon(
                 Icons.keyboard,
@@ -96,7 +107,9 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
-            controller: emailid,
+            onSubmitted: (value) {
+              _phone = value;
+            },
             decoration: InputDecoration(
               prefixIcon: Icon(
                 Icons.phone,
@@ -124,7 +137,9 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
-            controller: name,
+            onSubmitted: (value) {
+              _name = value;
+            },
             decoration: InputDecoration(
               prefixIcon: Icon(
                 Icons.person,
@@ -152,7 +167,9 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
-            controller: studentNumber,
+            onSubmitted: (value) {
+              _studentNumber = value;
+            },
             decoration: InputDecoration(
               prefixIcon: Icon(
                 Icons.tag,
@@ -180,13 +197,15 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.red[100],
               borderRadius: BorderRadius.circular(100.0)),
           child: TextField(
-            controller: password,
+            onSubmitted: (value) {
+              _password = value;
+            },
             decoration: InputDecoration(
               prefixIcon: Icon(
                 Icons.lock,
                 color: Colors.white,
               ),
-              hintText: "비밀번호를 입력하세요.",
+              hintText: "비밀번호를 입력하세요. (6자리 이상)",
               border: InputBorder.none,
             ),
             obscureText: true,
@@ -196,25 +215,16 @@ class _SignUpPageState extends State<SignUpPage> {
     );
   }
 
-  Widget buildSignInBtn() {
+  Widget buildSignUpBtn() {
     return Container(
       width: 250.0,
       child: RaisedButton(
         onPressed: () {
-          _name = name.text;
-          _studentNumber = studentNumber.text;
-          _emailid = emailid.text;
-          _password = password.text;
-          if (true) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => LoginPage()));
-          }
-          // Navigator.push(
-          //     context,
-          //     MaterialPageRoute(
-          //         builder: (BuildContext context) => LoginPage()));
+          _createUser();
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => LoginPage()));
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
@@ -250,7 +260,7 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           child: Column(
             children: [
-              SizedBox(height: 20.0),
+              SizedBox(height: 10.0),
               buildName(),
               SizedBox(height: 7.0),
               buildStudentNumber(),
@@ -261,7 +271,7 @@ class _SignUpPageState extends State<SignUpPage> {
               SizedBox(height: 7.0),
               buildPassword(),
               SizedBox(height: 25.0),
-              buildSignInBtn(),
+              buildSignUpBtn(),
             ],
           ),
         ));
