@@ -1,11 +1,6 @@
-import 'package:MapKhuRo/login_page/loginpage.dart';
+import 'package:MapKhuRo/personal_page/revisemyinfo.dart';
 import 'package:flutter/material.dart';
-import 'package:MapKhuRo/home_page/homepage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MyInformation extends StatefulWidget {
@@ -14,7 +9,8 @@ class MyInformation extends StatefulWidget {
 }
 
 class _MyInformationState extends State<MyInformation> {
-  String _email = '0501kdh7@khu.ac.kr';
+  String emailid;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   SharedPreferences _prefEmail;
 
   @override
@@ -26,8 +22,13 @@ class _MyInformationState extends State<MyInformation> {
   void _loadEmail() async {
     _prefEmail = await SharedPreferences.getInstance();
     setState(() {
-      _email = (_prefEmail.getString('_email') ?? '');
+      emailid = (_prefEmail.getString('emailid') ?? 'abc123@khu.ac.kr');
     });
+  }
+
+  void loadUserData(String id) {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    firestore.collection('UserID').doc(id).get();
   }
 
   String _password;
@@ -41,168 +42,15 @@ class _MyInformationState extends State<MyInformation> {
   final studentNumberController = TextEditingController();
   final nameController = TextEditingController();
 
-  Widget buildEmail() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('KHU-Mail'),
-        SizedBox(height: 10.0),
-        Container(
-          height: 60.0,
-          alignment: Alignment.centerLeft,
-          decoration: BoxDecoration(
-              color: Colors.red[100],
-              borderRadius: BorderRadius.circular(100.0)),
-          child: TextField(
-            controller: emailController,
-            onSubmitted: (value) {
-              _email = value;
-            },
-            decoration: InputDecoration(
-              prefixIcon: Icon(
-                Icons.keyboard,
-                color: Colors.white,
-              ),
-              hintText: "KHU-Mail 주소 입력 (ID로 사용)",
-              border: InputBorder.none,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildPhone() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('전화번호'),
-        SizedBox(height: 10.0),
-        Container(
-          height: 60.0,
-          alignment: Alignment.centerLeft,
-          decoration: BoxDecoration(
-              color: Colors.red[100],
-              borderRadius: BorderRadius.circular(100.0)),
-          child: TextField(
-            controller: phoneController,
-            onSubmitted: (value) {
-              _phone = value;
-            },
-            decoration: InputDecoration(
-              prefixIcon: Icon(
-                Icons.phone,
-                color: Colors.white,
-              ),
-              hintText: "전화번호 입력 (- 제외)",
-              border: InputBorder.none,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildName() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('이름'),
-        SizedBox(height: 10.0),
-        Container(
-          height: 60.0,
-          alignment: Alignment.centerLeft,
-          decoration: BoxDecoration(
-              color: Colors.red[100],
-              borderRadius: BorderRadius.circular(100.0)),
-          child: TextField(
-            controller: nameController,
-            onSubmitted: (value) {
-              _name = value;
-            },
-            decoration: InputDecoration(
-              prefixIcon: Icon(
-                Icons.person,
-                color: Colors.white,
-              ),
-              hintText: "이름을 입력하세요.",
-              border: InputBorder.none,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildStudentNumber() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('학번'),
-        SizedBox(height: 10.0),
-        Container(
-          height: 25.0,
-          alignment: Alignment.centerLeft,
-          decoration: BoxDecoration(
-              color: Colors.red[100],
-              borderRadius: BorderRadius.circular(100.0)),
-          child: TextField(
-            controller: studentNumberController,
-            onSubmitted: (value) {
-              _studentNumber = value;
-            },
-            decoration: InputDecoration(
-              prefixIcon: Icon(
-                Icons.tag,
-                color: Colors.white,
-              ),
-              hintText: "학번을 입력하세요.",
-              border: InputBorder.none,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildPassword() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('비밀번호'),
-        SizedBox(height: 10.0),
-        Container(
-          height: 60.0,
-          alignment: Alignment.centerLeft,
-          decoration: BoxDecoration(
-              color: Colors.red[100],
-              borderRadius: BorderRadius.circular(100.0)),
-          child: TextField(
-            controller: passwordController,
-            onSubmitted: (value) {
-              _password = value;
-            },
-            decoration: InputDecoration(
-              prefixIcon: Icon(
-                Icons.lock,
-                color: Colors.white,
-              ),
-              hintText: "비밀번호를 입력하세요. (6자리 이상)",
-              border: InputBorder.none,
-            ),
-            obscureText: true,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget buildChangeBtn() {
     return Container(
       width: 250.0,
       child: RaisedButton(
         onPressed: () {
-          print('_email');
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => ReviseMyInformation()));
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
@@ -223,7 +71,7 @@ class _MyInformationState extends State<MyInformation> {
   Widget buildLoadData() {
     return StreamBuilder(
       // ignore: deprecated_member_use
-      stream: Firestore.instance.collection('UserID').snapshots(),
+      stream: Firestore.instance.collection(emailid).snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return Text('데이터 로딩중.. 잠시만 기다려주세요...');
         return Column(
@@ -377,52 +225,9 @@ class _MyInformationState extends State<MyInformation> {
           ),
           child: Column(
             children: [
-              // Center(
-              //   child: Container(
-              //     width: 320.0,
-              //     height: 70.0,
-              //     child: RaisedButton(
-              //       onPressed: () {},
-              //       shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(30.0),
-              //       ),
-              //       color: Colors.red[400],
-              //       child: Text(
-              //         '친구목록 불러오기',
-              //         style: TextStyle(
-              //             color: Colors.white,
-              //             fontSize: 18.0,
-              //             fontWeight: FontWeight.bold,
-              //             fontFamily: 'OpenSans'),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // SizedBox(height: 10.0),
-              // Center(
-              //   child: Container(
-              //     width: 320.0,
-              //     height: 150.0,
-              //     child: RaisedButton(
-              //       onPressed: () {},
-              //       shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(30.0),
-              //       ),
-              //       color: Colors.red[400],
-              //       child: Text(
-              //         '친구목록 불러오기',
-              //         style: TextStyle(
-              //             color: Colors.white,
-              //             fontSize: 18.0,
-              //             fontWeight: FontWeight.bold,
-              //             fontFamily: 'OpenSans'),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              SizedBox(height: 10.0),
+              SizedBox(height: 25.0),
               buildLoadData(),
-              SizedBox(height: 15.0),
+              SizedBox(height: 35.0),
               buildChangeBtn(),
             ],
           ),

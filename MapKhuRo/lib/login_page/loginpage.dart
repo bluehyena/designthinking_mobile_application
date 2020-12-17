@@ -2,13 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:MapKhuRo/home_page/homepage.dart';
 import 'package:MapKhuRo/signup_page/singup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:MapKhuRo/main.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:MapKhuRo/googlemap_page/googlemaps.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -16,11 +11,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String _email = '';
+  String emailid = '';
   String _password = '';
   SharedPreferences _prefEmail;
-
-  final _emailId = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -31,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   void _loadEmail() async {
     _prefEmail = await SharedPreferences.getInstance();
     setState(() {
-      _email = (_prefEmail.getString('_email') ?? '');
+      emailid = (_prefEmail.getString(emailid) ?? 'abc123@khu.ac.kr');
     });
   }
 
@@ -64,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _email,
+        email: emailid,
         password: _password,
       );
       Navigator.push(context,
@@ -78,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void CreateCurrentUser(String id) {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-    firestore.collection('UserID').doc('current').set({
+    firestore.collection('UserID').doc('000000').set({
       'Id': id,
     });
   }
@@ -106,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
           child: TextField(
             controller: emailController,
             onSubmitted: (value) {
-              _email = value;
+              emailid = value;
             },
             decoration: InputDecoration(
               prefixIcon: Icon(
@@ -221,13 +214,13 @@ class _LoginPageState extends State<LoginPage> {
           ),
           child: Column(
             children: [
-              SizedBox(height: 20.0),
+              SizedBox(height: 40.0),
               buildMainLogo(),
-              SizedBox(height: 2.0),
+              SizedBox(height: 20.0),
               buildEmailId(),
-              SizedBox(height: 10.0),
+              SizedBox(height: 15.0),
               buildPassword(),
-              SizedBox(height: 35.0),
+              SizedBox(height: 40.0),
               buildLoginBtn(),
               SizedBox(height: 5.0),
               buildSignUpBtn(),

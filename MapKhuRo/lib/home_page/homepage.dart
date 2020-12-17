@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:MapKhuRo/googlemap_page/googlemaps.dart';
 import 'package:MapKhuRo/personal_page/friendslist.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -45,7 +43,7 @@ class _HomePageState extends State<HomePage> {
         ),
         body: Column(
           children: [
-            SizedBox(height: 10.0),
+            SizedBox(height: 50.0),
             Center(
               child: Container(
                 width: 320.0,
@@ -83,14 +81,14 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (BuildContext context) => FriendList()));
+                            builder: (BuildContext context) => ClassList()));
                   },
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   color: Colors.red[400],
                   child: Text(
-                    '친구목록 불러오기',
+                    '수업목록 불러오기',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 18.0,
@@ -117,7 +115,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   color: Colors.red[500],
                   child: Text(
-                    'Map -> KHU RO!\n 경희대학교로 출발!',
+                    'Map! 내 현재위치 불러오기',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 18.0,

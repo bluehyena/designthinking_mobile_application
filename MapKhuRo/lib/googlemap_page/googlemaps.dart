@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class GoogleMaps extends StatelessWidget {
   @override
@@ -59,7 +58,7 @@ class _MyGoogleTrackerState extends State<MyGoogleTracker> {
           anchor: Offset(0.5, 0.5),
           icon: BitmapDescriptor.fromBytes(imageData));
       circle = Circle(
-          circleId: CircleId("car"),
+          circleId: CircleId("ch4n3"),
           radius: newLocalData.accuracy,
           zIndex: 1,
           strokeColor: Colors.blue,
